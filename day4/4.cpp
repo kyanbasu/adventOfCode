@@ -1,11 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+//cmath not really required, used just once in part 1 for power function
 #include <cmath>
 
 using namespace std;
 
 const string input = "input.txt";
+//check if example input and tweak constants
 const int WIN_NUM = (input == "inputx.txt") ? 5 : 10;
 const int GUESSES = (input == "inputx.txt") ? 8 : 25;
 
@@ -90,10 +92,12 @@ unsigned int part2(){
 }
 
 int main(){
+    //part1
     //unsigned int p1 = part1();
     //cout << p1 << '\n';
     //cout << (p1 > 956 && p1 < 21847);
 
+    //part2
     unsigned int p2 = part2();
     cout << '\n' << p2 << '\n';
     
