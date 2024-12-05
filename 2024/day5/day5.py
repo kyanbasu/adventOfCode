@@ -1,11 +1,11 @@
-from ast import parse
+from functools import cmp_to_key
 
 
-def parse_input(input):
+def parse_input(_in):
     section1 = []
     section2 = []
     is_section1 = True
-    for line in input.split("\n"):
+    for line in _in.split("\n"):
         if line == '':
             if is_section1:
                 is_section1 = False
@@ -35,15 +35,12 @@ def part1(_rules, _updates):
         u = u.split(',')
 
         for i in range(len(u)):
-            # check before each number to if it is NOT in rules
-            for j in range(i):
-                if u[i] in rules and u[j] in rules[u[i]]:
-                    is_correct_line = False
-                    break
-
-            # check after each number to if it is in rules
-            for j in range(i+1, len(u)):
-                if u[i] in rules and u[j] not in rules[u[i]]:
+            for j in range(len(u)):
+                if u[i] in rules and (
+                        (u[j] in rules[u[i]] and j<i)
+                        or
+                        (u[j] not in rules[u[i]] and j>i)
+                ):
                     is_correct_line = False
                     break
             else:
@@ -53,75 +50,52 @@ def part1(_rules, _updates):
         if is_correct_line:
             ans += int(u[int(len(u)/2)])
 
-
     return ans
 
 
-def part2(_rules, _updates):
-    rules = {} # number rules
-
-    def sort_rule(_r):
-        _a = True
-        if _r in rules:
-            for _i in rules[_r]:
-                if _r > _i:
-                    _a = False
-        return _a
-
-    for r in _rules:
-        if r[0] not in rules:
-            rules[r[0]] = [r[1]]
+def part2(_in):
+    def sorted_by_rules(a, b):
+        if f"{b}|{a}" in rules:
+            return 1
         else:
-            rules[r[0]].append(r[1])
+            return -1
 
-    print(rules)
+    rules, updates = _in.split("\n\n")
+
+    updates = updates.split('\n')
 
     ans = 0
-    iter = 0
-    for u in _updates:
-        iter+=1
-        is_correct_line = True
-
+    for u in updates:
         u = u.split(',')
 
-        for i in range(len(u)):
-            # check before each number to if it is NOT in rules
-            for j in range(i):
-                if u[i] in rules and u[j] in rules[u[i]]:
-                    is_correct_line = False
-                    break
+        sorted_u = sorted(u, key=cmp_to_key(sorted_by_rules))
 
-            # check after each number to if it is in rules
-            for j in range(i+1, len(u)):
-                if u[i] in rules and u[j] not in rules[u[i]]:
-                    is_correct_line = False
-                    break
-            else:
-                continue
-
-            break
-
-        if not is_correct_line:
-            #sort array or sth
-            print(u, iter, is_correct_line)
-            ans += int(u[int(len(u) / 2)])
-
+        if sorted_u != u:
+            ans += int(sorted_u[int(len(sorted_u) / 2)])
 
     return ans
 
 
 if __name__ == "__main__":
     ex = open("example.txt").read()
+    _in = open("input.txt").read()
+
+    # Part 1
 
     es1, es2 = parse_input(ex)
-    """
+
     example1 = part1(es1, es2)
     assert example1 == 143, "example1 should be equal 143, but is " + str(example1)
 
-    s1, s2 = parse_input(open("input.txt").read())
+    s1, s2 = parse_input(_in)
 
     p1 = part1(s1, s2)
-    print(p1)"""
+    print("part 1: ", p1)
 
-    example2 = part2(es1, es2)
+    # Part 2
+
+    example2 = part2(ex)
     assert example2 == 123, "example2 should be equal 123, but is " + str(example2)
+
+    p2 = part2(_in)
+    print("part 2: ", p2)
