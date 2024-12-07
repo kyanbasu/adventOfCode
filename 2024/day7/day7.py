@@ -1,4 +1,5 @@
 import itertools
+from multiprocessing import Pool
 
 
 def part1(_in):
@@ -23,27 +24,29 @@ def part1(_in):
     return ans
 
 def part2(_in):
-    ans = 0
+    with Pool() as pool:
+        results = pool.map(calc_line2, _in)
+
+    return sum(results)
+
+def calc_line2(l):
     operators = ['+', '*', '||']
+    l = l.split(': ')
+    check = int(l[0])
+    nums = list(map(int, l[1].split(' ')))
 
-    for l in _in:
-        l = l.split(': ')
-        check = int(l[0])
-        nums = list(map(int, l[1].split(' ')))
+    combs = itertools.product(operators, repeat=len(nums) - 1)
 
-        combs = itertools.product(operators, repeat=len(nums)-1)
-
-        for c in combs:
-            calc = nums[0]
-            for i, op in enumerate(c):
-                calc = operation(calc, nums[i + 1], op)
-                if calc > check: # speeds up by about 5%
-                    break
-            if check == calc:
-                ans += calc
+    for c in combs:
+        calc = nums[0]
+        for i, op in enumerate(c):
+            calc = operation(calc, nums[i + 1], op)
+            if calc > check:  # speeds up by about 5%
                 break
+        if check == calc:
+            return calc
 
-    return ans
+    return 0
 
 def operation(a, b, oper):
     match oper:
